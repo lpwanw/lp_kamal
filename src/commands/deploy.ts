@@ -1,4 +1,5 @@
 import * as p from '@clack/prompts';
+import { resolve } from 'node:path';
 import { loadConfig } from '../lib/config.js';
 import {
   isGitRepo,
@@ -21,13 +22,21 @@ export async function runDeploy(): Promise<void> {
     process.exit(1);
   }
 
-  // Project selection
-  let project: ProjectConfig;
+  // Check if current directory is a registered project
+  const cwd = resolve(process.cwd());
+  let project: ProjectConfig | undefined = config.projects.find(
+    (proj) => resolve(proj.path) === cwd
+  );
 
-  if (config.projects.length === 1) {
+  if (project) {
+    // Already in a registered project directory
+    p.log.info(`Project: ${project.name}`);
+  } else if (config.projects.length === 1) {
+    // Only one project registered
     project = config.projects[0];
     p.log.info(`Project: ${project.name}`);
   } else {
+    // Multiple projects, prompt selection
     const selectedName = await p.select({
       message: 'Select project:',
       options: config.projects.map((proj) => ({
