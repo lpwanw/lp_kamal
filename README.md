@@ -151,6 +151,7 @@ Global config stored at `~/.config/lp_kamal/config.json`:
 |---------|-------------|
 | `lp_kamal` | Start deploy flow |
 | `lp_kamal --init` | Scan and register projects |
+| `lp_kamal --update` | Update to latest version |
 | `lp_kamal --help` | Show help |
 | `lp_kamal --version` | Show version |
 
