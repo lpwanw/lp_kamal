@@ -26,7 +26,13 @@ git clone https://github.com/lpwanw/lp_kamal.git
 cd lp_kamal
 bun install
 bun run build:exe
-sudo mv lp_kamal /usr/local/bin/
+
+# Install to ~/.local/bin (no sudo required)
+mkdir -p ~/.local/bin
+mv lp_kamal ~/.local/bin/
+
+# Add to PATH if needed (add to .zshrc or .bashrc)
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
 ## Usage
