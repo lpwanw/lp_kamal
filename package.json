@@ -1,0 +1,36 @@
+{
+  "name": "lp_kamal",
+  "version": "0.2.0",
+  "description": "Interactive Kamal deployment CLI",
+  "type": "module",
+  "bin": {
+    "lp_kamal": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outfile=dist/index.js --target=node",
+    "build:exe": "bun build src/index.ts --compile --outfile=lp_kamal",
+    "typecheck": "bun run tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "kamal",
+    "deploy",
+    "cli",
+    "interactive"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7.2"
+  }
+}
