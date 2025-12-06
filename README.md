@@ -21,15 +21,20 @@ curl -fsSL https://raw.githubusercontent.com/lpwanw/lp_kamal/refs/heads/main/ins
 
 ### Manual Install
 
-```bash
-git clone https://github.com/lpwanw/lp_kamal.git
-cd lp_kamal
-bun install
-bun run build:exe
+Download the pre-built binary for your platform:
 
-# Install to ~/.local/bin (no sudo required)
-mkdir -p ~/.local/bin
-mv lp_kamal ~/.local/bin/
+```bash
+# macOS (Apple Silicon)
+curl -sL https://github.com/lpwanw/lp_kamal/releases/latest/download/lp_kamal-darwin-arm64 -o ~/.local/bin/lp_kamal
+
+# macOS (Intel)
+curl -sL https://github.com/lpwanw/lp_kamal/releases/latest/download/lp_kamal-darwin-x64 -o ~/.local/bin/lp_kamal
+
+# Linux (x64)
+curl -sL https://github.com/lpwanw/lp_kamal/releases/latest/download/lp_kamal-linux-x64 -o ~/.local/bin/lp_kamal
+
+# Make executable
+chmod +x ~/.local/bin/lp_kamal
 
 # Add to PATH if needed (add to .zshrc or .bashrc)
 export PATH="$HOME/.local/bin:$PATH"
@@ -158,6 +163,8 @@ Global config stored at `~/.config/lp_kamal/config.json`:
 
 ## Development
 
+Requires [Bun](https://bun.sh) >= 1.0
+
 ```bash
 # Install dependencies
 bun install
@@ -174,9 +181,9 @@ bun run build:exe
 
 ## Requirements
 
-- [Bun](https://bun.sh) >= 1.0
 - [Kamal](https://kamal-deploy.org) installed
 - Git
+- macOS (Intel/Apple Silicon) or Linux (x64)
 
 ## License
 
