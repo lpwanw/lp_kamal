@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 import * as p from '@clack/prompts';
 
-const VERSION = '0.4.0';
+const VERSION = '0.4.1';
 const GITHUB_RELEASES_URL = 'https://api.github.com/repos/lpwanw/lp_kamal/releases/latest';
 const CONFIG_DIR = join(homedir(), '.config', 'lp_kamal');
 const CACHE_FILE = join(CONFIG_DIR, 'update-cache.json');
