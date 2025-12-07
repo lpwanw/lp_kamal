@@ -3,25 +3,25 @@ export interface RunResult {
   exitCode: number;
 }
 
+const SENSITIVE_PATTERNS = /(\w*(?:PASSWORD|SECRET|TOKEN|KEY|CREDENTIAL)\w*)=([^\s]+)/gi;
+
 export async function runCommand(
   command: string,
   cwd?: string,
   verbose?: boolean
 ): Promise<RunResult> {
-  const parts = parseCommand(command);
-  if (parts.length === 0) {
+  if (!command.trim()) {
     return { success: false, exitCode: 1 };
   }
 
-  const [cmd, ...args] = parts;
-
-  // Show command in verbose mode
+  // Show masked command in verbose mode
   if (verbose) {
-    console.log(`$ ${command}`);
+    console.log(`$ ${maskSecrets(command)}`);
   }
 
   try {
-    const proc = Bun.spawn([cmd, ...args], {
+    // Use shell to handle inline env vars and shell syntax
+    const proc = Bun.spawn(['bash', '-c', command], {
       stdout: 'inherit',
       stderr: 'inherit',
       env: { ...process.env, FORCE_COLOR: '1' },
@@ -36,37 +36,14 @@ export async function runCommand(
     }
 
     return { success: exitCode === 0, exitCode };
-  } catch {
+  } catch (error) {
+    if (verbose) {
+      console.error(`Error: ${error}`);
+    }
     return { success: false, exitCode: 1 };
   }
 }
 
-function parseCommand(command: string): string[] {
-  const parts: string[] = [];
-  let current = '';
-  let inQuote = false;
-  let quoteChar = '';
-
-  for (const char of command) {
-    if ((char === '"' || char === "'") && !inQuote) {
-      inQuote = true;
-      quoteChar = char;
-    } else if (char === quoteChar && inQuote) {
-      inQuote = false;
-      quoteChar = '';
-    } else if (char === ' ' && !inQuote) {
-      if (current) {
-        parts.push(current);
-        current = '';
-      }
-    } else {
-      current += char;
-    }
-  }
-
-  if (current) {
-    parts.push(current);
-  }
-
-  return parts;
+function maskSecrets(command: string): string {
+  return command.replace(SENSITIVE_PATTERNS, '$1=***');
 }
