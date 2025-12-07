@@ -1,11 +1,11 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
 import * as p from '@clack/prompts';
 
 const VERSION = '0.4.1';
 const GITHUB_RELEASES_URL = 'https://api.github.com/repos/lpwanw/lp_kamal/releases/latest';
-const CONFIG_DIR = join(homedir(), '.config', 'lp_kamal');
+const HOME = Bun.env.HOME ?? Bun.env.USERPROFILE ?? '';
+const CONFIG_DIR = join(HOME, '.config', 'lp_kamal');
 const CACHE_FILE = join(CONFIG_DIR, 'update-cache.json');
 const CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -21,7 +21,7 @@ export function getVersion(): string {
 export async function checkForUpdates(): Promise<void> {
   try {
     // Check cache first
-    const cache = readCache();
+    const cache = await readCache();
     const now = Date.now();
 
     if (cache && now - cache.lastCheck < CHECK_INTERVAL) {
@@ -48,7 +48,7 @@ export async function checkForUpdates(): Promise<void> {
     const latestVersion = data.tag_name.replace(/^v/, '');
 
     // Update cache
-    writeCache({ lastCheck: now, latestVersion });
+    await writeCache({ lastCheck: now, latestVersion });
 
     // Notify if newer
     if (isNewerVersion(latestVersion, VERSION)) {
@@ -59,10 +59,11 @@ export async function checkForUpdates(): Promise<void> {
   }
 }
 
-function readCache(): UpdateCache | null {
+async function readCache(): Promise<UpdateCache | null> {
   try {
-    if (existsSync(CACHE_FILE)) {
-      return JSON.parse(readFileSync(CACHE_FILE, 'utf-8'));
+    const file = Bun.file(CACHE_FILE);
+    if (await file.exists()) {
+      return await file.json();
     }
   } catch {
     // Ignore cache read errors
@@ -70,12 +71,10 @@ function readCache(): UpdateCache | null {
   return null;
 }
 
-function writeCache(cache: UpdateCache): void {
+async function writeCache(cache: UpdateCache): Promise<void> {
   try {
-    if (!existsSync(CONFIG_DIR)) {
-      mkdirSync(CONFIG_DIR, { recursive: true });
-    }
-    writeFileSync(CACHE_FILE, JSON.stringify(cache));
+    mkdirSync(CONFIG_DIR, { recursive: true });
+    await Bun.write(CACHE_FILE, JSON.stringify(cache));
   } catch {
     // Ignore cache write errors
   }
