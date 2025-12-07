@@ -9,7 +9,7 @@ import type { CliOptions } from './types.js';
 export const cli = new Command()
   .name('lp_kamal')
   .description('Interactive Kamal deployment CLI')
-  .version('0.2.0')
+  .version('0.4.0')
   .option('--init', 'Setup branch and command configuration')
   .option('--config', 'Manage projects and branches')
   .option('--update', 'Update to latest version')
