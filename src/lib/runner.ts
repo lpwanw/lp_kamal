@@ -3,13 +3,22 @@ export interface RunResult {
   exitCode: number;
 }
 
-export async function runCommand(command: string, cwd?: string): Promise<RunResult> {
+export async function runCommand(
+  command: string,
+  cwd?: string,
+  verbose?: boolean
+): Promise<RunResult> {
   const parts = parseCommand(command);
   if (parts.length === 0) {
     return { success: false, exitCode: 1 };
   }
 
   const [cmd, ...args] = parts;
+
+  // Show command in verbose mode
+  if (verbose) {
+    console.log(`$ ${command}`);
+  }
 
   try {
     const proc = Bun.spawn([cmd, ...args], {
@@ -20,6 +29,12 @@ export async function runCommand(command: string, cwd?: string): Promise<RunResu
     });
 
     const exitCode = await proc.exited;
+
+    // Show exit code in verbose mode
+    if (verbose) {
+      console.log(`Exit code: ${exitCode}`);
+    }
+
     return { success: exitCode === 0, exitCode };
   } catch {
     return { success: false, exitCode: 1 };

@@ -1,6 +1,11 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+interface GitOptions {
+  cwd?: string;
+  verbose?: boolean;
+}
+
 export function isGitRepo(cwd: string = process.cwd()): boolean {
   return existsSync(join(cwd, '.git'));
 }
@@ -14,39 +19,45 @@ export async function getCurrentBranch(cwd?: string): Promise<string> {
   return output.trim();
 }
 
-export async function checkoutBranch(branch: string, cwd?: string): Promise<void> {
+export async function checkoutBranch(branch: string, options: GitOptions = {}): Promise<void> {
+  const { cwd, verbose } = options;
   const proc = Bun.spawn(['git', 'checkout', branch], {
-    stdout: 'inherit',
-    stderr: 'inherit',
+    stdout: verbose ? 'inherit' : 'pipe',
+    stderr: 'pipe',
     cwd,
   });
   const exitCode = await proc.exited;
   if (exitCode !== 0) {
-    throw new Error(`Failed to checkout branch: ${branch}`);
+    const stderr = await new Response(proc.stderr).text();
+    throw new Error(stderr.trim() || `Failed to checkout branch: ${branch}`);
   }
 }
 
-export async function fetchOrigin(cwd?: string): Promise<void> {
+export async function fetchOrigin(options: GitOptions = {}): Promise<void> {
+  const { cwd, verbose } = options;
   const proc = Bun.spawn(['git', 'fetch', 'origin'], {
-    stdout: 'inherit',
-    stderr: 'inherit',
+    stdout: verbose ? 'inherit' : 'pipe',
+    stderr: 'pipe',
     cwd,
   });
   const exitCode = await proc.exited;
   if (exitCode !== 0) {
-    throw new Error('Failed to fetch from origin');
+    const stderr = await new Response(proc.stderr).text();
+    throw new Error(stderr.trim() || 'Failed to fetch from origin');
   }
 }
 
-export async function pullOrigin(branch: string, cwd?: string): Promise<void> {
+export async function pullOrigin(branch: string, options: GitOptions = {}): Promise<void> {
+  const { cwd, verbose } = options;
   const proc = Bun.spawn(['git', 'pull', 'origin', branch], {
-    stdout: 'inherit',
-    stderr: 'inherit',
+    stdout: verbose ? 'inherit' : 'pipe',
+    stderr: 'pipe',
     cwd,
   });
   const exitCode = await proc.exited;
   if (exitCode !== 0) {
-    throw new Error(`Failed to pull branch: ${branch}`);
+    const stderr = await new Response(proc.stderr).text();
+    throw new Error(stderr.trim() || `Failed to pull branch: ${branch}`);
   }
 }
 

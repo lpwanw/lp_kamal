@@ -10,9 +10,11 @@ import {
   hasUncommittedChanges,
 } from '../lib/git.js';
 import { runCommand } from '../lib/runner.js';
-import type { ProjectConfig } from '../types.js';
+import type { ProjectConfig, CliOptions } from '../types.js';
 
-export async function runDeploy(): Promise<void> {
+export async function runDeploy(options: CliOptions = {}): Promise<void> {
+  const { verbose } = options;
+
   p.intro('lp_kamal Deploy');
 
   const config = await loadConfig();
@@ -94,7 +96,7 @@ export async function runDeploy(): Promise<void> {
   if (selectedBranch !== currentBranch) {
     s.start(`Checking out ${selectedBranch}`);
     try {
-      await checkoutBranch(selectedBranch, projectPath);
+      await checkoutBranch(selectedBranch, { cwd: projectPath, verbose });
       s.stop(`Checked out ${selectedBranch}`);
     } catch (error) {
       s.stop(`Failed to checkout ${selectedBranch}`);
@@ -105,7 +107,7 @@ export async function runDeploy(): Promise<void> {
 
   s.start('Fetching origin');
   try {
-    await fetchOrigin(projectPath);
+    await fetchOrigin({ cwd: projectPath, verbose });
     s.stop('Fetched origin');
   } catch (error) {
     s.stop('Failed to fetch');
@@ -115,7 +117,7 @@ export async function runDeploy(): Promise<void> {
 
   s.start(`Pulling ${selectedBranch}`);
   try {
-    await pullOrigin(selectedBranch, projectPath);
+    await pullOrigin(selectedBranch, { cwd: projectPath, verbose });
     s.stop(`Pulled ${selectedBranch}`);
   } catch (error) {
     s.stop(`Failed to pull ${selectedBranch}`);
@@ -142,7 +144,7 @@ export async function runDeploy(): Promise<void> {
   p.log.step('Deploying...');
   console.log('');
 
-  const result = await runCommand(branchConfig.command, projectPath);
+  const result = await runCommand(branchConfig.command, projectPath, verbose);
 
   console.log('');
 

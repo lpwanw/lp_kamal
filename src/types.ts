@@ -24,3 +24,7 @@ export const DEFAULT_CONFIG: Config = {
   version: 2,
   projects: [],
 };
+
+export interface CliOptions {
+  verbose?: boolean;
+}
